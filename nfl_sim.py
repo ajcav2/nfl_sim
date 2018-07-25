@@ -2,6 +2,7 @@ import nflgame
 import numpy as np
 
 
+
 def get_team():
     players = []
     new_player = raw_input('Enter player name: ')
@@ -55,30 +56,51 @@ def validate_player(player):
     return matches[selection-1]
 
 
-def score_to_fantasy_points(game_stats):
+def score_to_fantasy_points(player):
     point_conversion = {'passing_twoptm': lambda x: x*2.0,
                         'passing_yds': lambda x: x/5.0*0.2,
                         'passing_tds': lambda x: x*4.0,
-                        'passing_ints': lambda x: x*(-2.0)}
+                        'passing_ints': lambda x: x*(-2.0),
+                        'rushing_yds': lambda x: x*0.1,
+                        'rushing_tds': lambda x: x*6.0,
+                        'rushing_twoptm': lambda x: x*2.0,
+                        'receiving_yds': lambda x: x*0.1,
+                        'receiving_rec': lambda x: x*0.5,
+                        'receiving_tds': lambda x: x*6.0,
+                        'receiving_twoptm': lambda x: x*2.0,
+                        'kickret_tds': lambda x: x*6.0,
+                        'puntret_tds': lambda x: x*6.0,
+                        'fumbles_lost': lambda x: x*(-2.0),
+                        'kicking_fgb': lambda x: x*(-1.0),
+                        'fumbles_rec_tds': lambda x: x*6.0,
+                        'defense_int_tds': lambda x: x*6.0,
+                        'fumble_rec_tds': lambda x: x*6.0,
+                        'defense_safe': lambda x: x*2.0,
+                        'defense_fgblk': lambda x: x*2.0,
+                        'defense_puntblk': lambda x: x*2.0,
+                        'defense_int': lambda x: x*2.0,
+                        'fumbles_rec': lambda x: x*2.0,
+                        'kicking_fgmissed': lambda x: x*(-1.0),
+                        'defense_sk': lambda x: x*1.0}
 
     points = 0.0
-    for stat in game_stats._stats:
+    for stat in player._stats:
         if stat in point_conversion.keys():
-            points += point_conversion[stat](getattr(game_stats,stat))
+            points += point_conversion[stat](getattr(player, stat))
     return points
 
 
 def get_player_score(player):
-    year = np.random.choice([2014, 2015, 2016], p=[.15, .25, .6])
+    year = np.random.choice([2014, 2015, 2016, 2017], p=[0.1, .15, .25, .5])
     week = np.random.randint(1, 18)
-    games = nflgame.games(2017, week=week)
+    games = nflgame.games(year, week=week)
     games = nflgame.combine_game_stats(games)
 
-    for game in games:
-        if game.player is None:
+    for person in games:
+        if person.player is None:
             continue
-        if player == game.player:
-            return score_to_fantasy_points(game)
+        if player == person.player:
+            return score_to_fantasy_points(person)
     return get_player_score(player)
 
 
@@ -105,7 +127,7 @@ def simulate(team, N=100):
 
 if __name__ == "__main__":
     players = get_team()
-    points = simulate(players,20)
+    points = simulate(players,1)
     print(points)
 
 # Set up venv
